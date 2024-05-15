@@ -7,7 +7,7 @@ import { showInfoToast } from '../utils/Components';
 
 export const LoginApp = () => {
     const navigate = useNavigate();
-    const { register, handleSubmit } = useForm();
+    const { register, handleSubmit, formState: { errors } } = useForm();
     const [loading, setLoading] = useState(false);
     const login = (data) => {
         if (!loading) {
@@ -33,10 +33,12 @@ export const LoginApp = () => {
                         <div className='item-form'>
                             <label>Número de celular</label>
                             <input type="text" {...register('cellphone', { required: true })} />
+                            {errors && errors.cellphone && <span className='text-danger' style={{ fontSize: 13 }}>Campo obligatorio</span>}
                         </div>
                         <div className='item-form'>
                             <label>Contraseña</label>
                             <input type="text" {...register('password', { required: true })} />
+                            {errors && errors.password && <span className='text-danger' style={{ fontSize: 13 }}>Campo obligatorio</span>}
                         </div>
                         <button>{loading ? 'Cargando...' : 'Continuar'}</button>
                     </form>

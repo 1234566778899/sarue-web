@@ -38,22 +38,22 @@ export const RegisterApp = () => {
                         <div className='item-form'>
                             <label>Nombre(s)</label>
                             <input type="text" {...register('name', { required: true, maxLength: 20 })} />
-                            {errors && errors.dni && <span className='text-danger' style={{ fontSize: 13 }}>Campo obligatorio </span>}
+                            {errors && errors.name && <span className='text-danger' style={{ fontSize: 13 }}>Campo obligatorio </span>}
                         </div>
                         <div className='item-form'>
                             <label>Apellidos</label>
                             <input type="text" {...register('lname', { required: true, maxLength: 20 })} />
-                            {errors && errors.dni && <span className='text-danger' style={{ fontSize: 13 }}>Campo obligatorio</span>}
+                            {errors && errors.lname && <span className='text-danger' style={{ fontSize: 13 }}>Campo obligatorio</span>}
                         </div>
                         <div className='item-form'>
                             <label>Número de celular</label>
                             <input type="text" {...register('cellphone', { required: true, minLength: 9, maxLength: 9 })} />
-                            {errors && errors.dni && <span className='text-danger' style={{ fontSize: 13 }}>Debe ingresar 9 Dígitos</span>}
+                            {errors && errors.cellphone && <span className='text-danger' style={{ fontSize: 13 }}>Debe ingresar 9 Dígitos</span>}
                         </div>
                         <div className='item-form'>
                             <label>Contraseña</label>
                             <input type="text" {...register('password', { required: true, minLength: 6, maxLength: 20 })} />
-                            {errors && errors.dni && <span className='text-danger' style={{ fontSize: 13 }}>Minimo 6 caracteres y maximo 20</span>}
+                            {errors && errors.password && <span className='text-danger' style={{ fontSize: 13 }}>Minimo 6 caracteres y maximo 20</span>}
                         </div>
                         <button>{loading ? 'Cargando...' : 'Registrarse'}</button>
                     </form>

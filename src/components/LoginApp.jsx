@@ -12,7 +12,7 @@ export const LoginApp = () => {
     const login = (data) => {
         if (!loading) {
             setLoading(true)
-            axios.post('http://54.92.157.65:4000/users/login', data)
+            axios.post('sarue.azurewebsites.net/users/login', data)
                 .then(res => {
                     navigate('/home');
                 })

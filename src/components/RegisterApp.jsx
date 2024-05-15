@@ -11,7 +11,7 @@ export const RegisterApp = () => {
     const registerUser = (data) => {
         if (!loading) {
             setLoading(true);
-            axios.post('sarue.azurewebsites.net/users/register', data)
+            axios.post('https://sarue.azurewebsites.net/users/register', data)
                 .then(res => {
                     showInfoToast('Usuario registrado');
                     navigate('/login');

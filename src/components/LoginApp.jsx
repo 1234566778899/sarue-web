@@ -1,31 +1,51 @@
-import React from 'react'
+import React, { useState } from 'react'
 import '../styles/Home.css'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { useForm } from 'react-hook-form';
+import { showInfoToast } from '../utils/Components';
+
 export const LoginApp = () => {
     const navigate = useNavigate();
+    const { register, handleSubmit } = useForm();
+    const [loading, setLoading] = useState(false);
+    const login = (data) => {
+        if (!loading) {
+            setLoading(true)
+            axios.post('http://54.92.157.65:4000/users/login', data)
+                .then(res => {
+                    navigate('/home');
+                })
+                .catch(error => {
+                    showInfoToast('Error: ' + error.response.data.error)
+                    setLoading(false)
+                    console.log(error)
+                })
+        }
+    }
     return (
         <div className='container'>
             <div className="row">
                 <div className="col-md-4"></div>
                 <div className="col-md-4">
-                    <form>
+                    <form onSubmit={handleSubmit(login)}>
                         <h1>Iniciar sesión</h1>
                         <div className='item-form'>
                             <label>Número de celular</label>
-                            <input type="text" />
+                            <input type="text" {...register('cellphone', { required: true })} />
                         </div>
                         <div className='item-form'>
                             <label>Contraseña</label>
-                            <input type="text" />
+                            <input type="text" {...register('password', { required: true })} />
                         </div>
-                        <button>Entrar</button>
+                        <button>{loading ? 'Cargando...' : 'Continuar'}</button>
                     </form>
                     <div className='icons'>
                         <button><i className="fa-brands fa-facebook"></i></button>
-                        <button><i class="fa-brands fa-google"></i></button>
-                        <button><i class="fa-brands fa-instagram"></i></button>
+                        <button><i className="fa-brands fa-google"></i></button>
+                        <button><i className="fa-brands fa-instagram"></i></button>
                     </div>
-                    <p className='text-center mt-5'>¿No tienes una cuenta? <a href="#" onClick={() => navigate('/register')}>Registrate</a></p>
+                    <p className='text-center mt-5'>¿No tienes una cuenta? <a href="#" onClick={() => navigate('/register')}>Registrarse</a></p>
                     <p className='text-center mt-2'><a href="#">¿Olvidaste tu contraseña?</a></p>
                 </div>
                 <div className="col-md-4"></div>

@@ -17,7 +17,7 @@ export const LoginApp = () => {
                     navigate('/home');
                 })
                 .catch(error => {
-                    showInfoToast('Error: ' + error.response.data.error)
+                    showInfoToast('Error: ')
                     setLoading(false)
                     console.log(error)
                 })

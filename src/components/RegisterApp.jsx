@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { showInfoToast } from '../utils/Components';
+import { CONFIG } from '../config';
 export const RegisterApp = () => {
     const navigate = useNavigate();
     const { register, handleSubmit, formState: { errors } } = useForm();
@@ -11,14 +12,18 @@ export const RegisterApp = () => {
     const registerUser = (data) => {
         if (!loading) {
             setLoading(true);
-            axios.post('https://sarue.azurewebsites.net/users/register', data)
+            axios.post(`${CONFIG.uri}/users/register`, data)
                 .then(res => {
                     showInfoToast('Usuario registrado');
                     navigate('/login');
                 })
                 .catch(error => {
                     setLoading(false);
-                    showInfoToast('Error: ' + error.response.data.error)
+                    if (error.response) {
+                        showInfoToast(error.response.data.error)
+                    } else {
+                        showInfoToast('Error on server');
+                    }
                     console.log(error)
                 })
         }
@@ -29,7 +34,7 @@ export const RegisterApp = () => {
                 <div className="col-md-4"></div>
                 <div className="col-md-4">
                     <form onSubmit={handleSubmit(registerUser)}>
-                        <h1>Registrarse</h1>
+                        <h1 className='title'>Registrarse</h1>
                         <div className='item-form'>
                             <label>DNI</label>
                             <input type="text" {...register('dni', { required: true, minLength: 8, maxLength: 8 })} />
@@ -52,7 +57,8 @@ export const RegisterApp = () => {
                         </div>
                         <div className='item-form'>
                             <label>Contraseña</label>
-                            <input type="text" {...register('password', { required: true, minLength: 6, maxLength: 20 })} />
+                            <input type="password"
+                                {...register('password', { required: true, minLength: 6, maxLength: 20 })} />
                             {errors && errors.password && <span className='text-danger' style={{ fontSize: 13 }}>Minimo 6 caracteres y maximo 20</span>}
                         </div>
                         <button>{loading ? 'Cargando...' : 'Registrarse'}</button>

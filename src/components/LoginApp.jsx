@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { useForm } from 'react-hook-form';
 import { showInfoToast } from '../utils/Components';
+import { CONFIG } from '../config';
 
 export const LoginApp = () => {
     const navigate = useNavigate();
@@ -12,12 +13,17 @@ export const LoginApp = () => {
     const login = (data) => {
         if (!loading) {
             setLoading(true)
-            axios.post('https://sarue.azurewebsites.net/users/login', data)
+            axios.post(`${CONFIG.uri}/users/login`, data)
                 .then(res => {
-                    navigate('/home');
+                    localStorage.setItem('token', res.data.token)
+                    navigate('/admin/incidences');
                 })
                 .catch(error => {
-                    showInfoToast('Error: ')
+                    if (error.response) {
+                        showInfoToast(error.response.data.error)
+                    } else {
+                        showInfoToast('Error en el servidor');
+                    }
                     setLoading(false)
                     console.log(error)
                 })
@@ -29,7 +35,7 @@ export const LoginApp = () => {
                 <div className="col-md-4"></div>
                 <div className="col-md-4">
                     <form onSubmit={handleSubmit(login)}>
-                        <h1>Iniciar sesión</h1>
+                        <h1 className='title'>Iniciar sesión</h1>
                         <div className='item-form'>
                             <label>Número de celular</label>
                             <input type="text" {...register('cellphone', { required: true })} />
@@ -37,7 +43,7 @@ export const LoginApp = () => {
                         </div>
                         <div className='item-form'>
                             <label>Contraseña</label>
-                            <input type="text" {...register('password', { required: true })} />
+                            <input type="password" {...register('password', { required: true })} />
                             {errors && errors.password && <span className='text-danger' style={{ fontSize: 13 }}>Campo obligatorio</span>}
                         </div>
                         <button>{loading ? 'Cargando...' : 'Continuar'}</button>

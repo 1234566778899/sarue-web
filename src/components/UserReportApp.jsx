@@ -1,83 +1,29 @@
-import React, { useState } from 'react'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react'
+import { CONFIG } from '../config';
+import { showInfoToast } from '../utils/Components';
 
 export const UserReportApp = () => {
     const [dni, setdni] = useState('');
-    const [users, setUsers] = useState([
-        {
-            dni: '58912347',
-            name: 'Jose',
-            lname: 'Gomez Sanchez',
-            cellphone: '957463742',
-            isActive: true
-        },
-        {
-            dni: '47891235',
-            name: 'Luisa',
-            lname: 'Torres Mendez',
-            cellphone: '934567890',
-            isActive: false
-        },
-        {
-            dni: '36547892',
-            name: 'Carlos',
-            lname: 'Fernandez Ruiz',
-            cellphone: '912345678',
-            isActive: true
-        },
-        {
-            dni: '25789461',
-            name: 'Maria',
-            lname: 'Lopez Garcia',
-            cellphone: '976543210',
-            isActive: true
-        },
-        {
-            dni: '15867564',
-            name: 'Juan',
-            lname: 'Martinez Perez',
-            cellphone: '945678123',
-            isActive: false
-        },
-        {
-            dni: '69874512',
-            name: 'Ana',
-            lname: 'Diaz Flores',
-            cellphone: '987654321',
-            isActive: true
-        },
-        {
-            dni: '78912354',
-            name: 'Pedro',
-            lname: 'Morales Vega',
-            cellphone: '923456789',
-            isActive: true
-        },
-        {
-            dni: '89123456',
-            name: 'Carmen',
-            lname: 'Hernandez Rios',
-            cellphone: '965432198',
-            isActive: false
-        },
-        {
-            dni: '91234567',
-            name: 'Jorge',
-            lname: 'Vargas Castillo',
-            cellphone: '956789012',
-            isActive: true
-        },
-        {
-            dni: '12345678',
-            name: 'Laura',
-            lname: 'Cruz Ramirez',
-            cellphone: '934567812',
-            isActive: true
-        },
-    ]);
+    const [users, setUsers] = useState([]);
     const [filter, setfilter] = useState(users);
     const findUser = () => {
         const val = users.filter(x => x.dni.includes(dni));
         setfilter(val);
+    }
+    useEffect(() => {
+        getUsers()
+    }, [])
+    const getUsers = () => {
+        axios.get(`${CONFIG.uri}/users/retrieve`)
+            .then(x => {
+                setUsers(x.data);
+                setfilter(x.data);
+            })
+            .catch(error => {
+                console.log(error);
+                showInfoToast('Error on server');
+            })
     }
     return (
         <div>

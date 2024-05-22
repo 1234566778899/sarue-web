@@ -1,92 +1,27 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
+import { CONFIG } from '../config';
+import { showInfoToast } from '../utils/Components';
+import moment from 'moment';
 
 export const IncidenceReportApp = () => {
     const status = ['En espera', 'En proceso', 'Terminado'];
-    const [incidences, setIncidences] = useState([
-        {
-            dni: '58912347',
-            name: 'Jose',
-            lname: 'Gomez Sanchez',
-            incidence: 'Robo',
-            direction: 'Av. Arequipa 2345 Lince, Lima, Perú',
-            createdAt: '16-05-2024',
-            status: '2',
-        },
-        {
-            dni: '69874512',
-            name: 'Ana',
-            lname: 'Diaz Flores',
-            incidence: 'Incendio',
-            direction: 'Jr. Puno 321 Breña, Lima, Perú',
-            createdAt: '15-05-2024',
-            status: '2',
-        },
-        {
-            dni: '78912354',
-            name: 'Pedro',
-            lname: 'Morales Vega',
-            incidence: 'Accidente de tráfico',
-            direction: 'Av. Universitaria 876 San Miguel, Lima, Perú',
-            createdAt: '14-05-2024',
-            status: '1',
-        },
-        {
-            dni: '89123456',
-            name: 'Carmen',
-            lname: 'Hernandez Rios',
-            incidence: 'Robo',
-            direction: 'Calle Los Olivos 456 San Borja, Lima, Perú',
-            createdAt: '13-05-2024',
-            status: '2',
-        },
-        {
-            dni: '91234567',
-            name: 'Jorge',
-            lname: 'Vargas Castillo',
-            incidence: 'Ambulancia',
-            direction: 'Av. Salaverry 789 Jesús María, Lima, Perú',
-            createdAt: '12-05-2024',
-            status: '2',
-        },
-        {
-            dni: '12345678',
-            name: 'Laura',
-            lname: 'Cruz Ramirez',
-            incidence: 'Incendio',
-            direction: 'Jr. Ayacucho 123 Pueblo Libre, Lima, Perú',
-            createdAt: '11-05-2024',
-            status: '1',
-        },
-        {
-            dni: '23456789',
-            name: 'Ricardo',
-            lname: 'Mendoza Soto',
-            incidence: 'Accidente de tráfico',
-            direction: 'Av. Angamos 234 Surquillo, Lima, Perú',
-            createdAt: '10-05-2024',
-            status: '2',
-        },
-        {
-            dni: '34567890',
-            name: 'Patricia',
-            lname: 'Reyes Figueroa',
-            incidence: 'Robo',
-            direction: 'Calle Los Cedros 345 La Molina, Lima, Perú',
-            createdAt: '09-05-2024',
-            status: '2',
-        },
-        {
-            dni: '45678901',
-            name: 'Roberto',
-            lname: 'Campos Nuñez',
-            incidence: 'Ambulancia',
-            direction: 'Av. Benavides 456 Surco, Lima, Perú',
-            createdAt: '08-05-2024',
-            status: '1',
-        }
-    ])
-    const [filter, setfilter] = useState(incidences);
+    const [incidences, setIncidences] = useState(null)
+    const [filter, setfilter] = useState([]);
     const [dni, setdni] = useState('')
+    useEffect(() => {
+        getIncidences()
+    }, [])
+    const getIncidences = () => {
+        axios.get(`${CONFIG.uri}/alerts/retrieve`)
+            .then(x => {
+                setIncidences(x.data);
+                setfilter(x.data);
+            })
+            .catch(error => {
+                showInfoToast('Error en el servidor');
+            })
+    }
     const findSuggestions = () => {
         const val = incidences.filter(x => x.dni.includes(dni));
         setfilter(val);
@@ -103,7 +38,7 @@ export const IncidenceReportApp = () => {
                     <button onClick={() => findSuggestions()} className='btn-main ms-2'>Buscar</button>
                 </div>
             </div>
-            <table className='table mt-5'>
+            <table className='table mt-5 text-center'>
                 <thead>
                     <tr>
                         <th>N°</th>
@@ -119,15 +54,15 @@ export const IncidenceReportApp = () => {
                 </thead>
                 <tbody>
                     {
-                        filter.map((x, index) => (
+                        filter && filter.map((x, index) => (
                             <tr key={index}>
                                 <td>{index + 1}</td>
                                 <td>{x.dni}</td>
                                 <td>{x.name}</td>
                                 <td>{x.lname}</td>
                                 <td>{x.incidence}</td>
-                                <td>{x.direction}</td>
-                                <td>{x.createdAt}</td>
+                                <td>{x.latitude},{x.longitude}</td>
+                                <td>{moment(x.createdAt).format('DD-MM-YYYY')}</td>
                                 <td>{status[x.status]}</td>
                                 <td className='action'>
                                     <button><i className="fa-solid fa-pen-to-square"></i></button>

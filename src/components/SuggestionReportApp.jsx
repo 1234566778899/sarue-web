@@ -45,7 +45,7 @@ export const SuggestionReportApp = () => {
             dni: '65987321',
             name: 'Jose',
             lname: 'Diaz Morales',
-            tyoe: 'Interfaz',
+            type: 'Interfaz',
             description: 'Los colores de la interfaz no son agradables a la vista.',
             status: '1',
         },
@@ -96,24 +96,36 @@ export const SuggestionReportApp = () => {
         },
     ]);
     const [filter, setfilter] = useState(suggestions);
-    const [dni, setdni] = useState('')
+    const [type, settype] = useState('usabilidad')
     const findSuggestions = () => {
-        const val = suggestions.filter(x => x.dni.includes(dni));
+        console.log(suggestions)
+        const val = suggestions.filter(x => x.type.toLowerCase().includes(type));
         setfilter(val);
     }
+
     return (
         <div>
             <h1>Reporte de Sugerencias</h1>
             <div className='search mt-5'>
                 <div className='find-dni'>
                     <div>
-                        <label>N° de Documento:</label>
-                        <input type="text" onChange={(e) => setdni(e.target.value)} />
+                        <label>Tipo de sugerencia:</label>
+                        <select
+                            onChange={(e) => settype(e.target.value)}
+                            style={{ padding: '5px', marginLeft: '10px', outline: 'none' }}>
+                            <option value=""></option>
+                            <option value="usabilidad">Usabilidad</option>
+                            <option value="accesibilidad">Accesibilidad</option>
+                            <option value="rendimiento">Rendimiento</option>
+                            <option value="funcionalidad">Funcionalidad</option>
+                            <option value="interfaz">Interfaz</option>
+
+                        </select>
                     </div>
                     <button onClick={() => findSuggestions()} className='btn-main ms-2'>Buscar</button>
                 </div>
             </div>
-            <table className='table mt-5'>
+            <table className='table mt-5' style={{ fontSize: '0.9rem' }}>
                 <thead>
                     <tr>
                         <th>N°</th>
@@ -130,7 +142,7 @@ export const SuggestionReportApp = () => {
                 <tbody>
                     {
                         filter.map((x, index) => (
-                            <tr>
+                            <tr key={index}>
                                 <td>{index + 1}</td>
                                 <td>{x.createdAt}</td>
                                 <td>{x.dni}</td>

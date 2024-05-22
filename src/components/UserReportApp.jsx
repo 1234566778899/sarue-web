@@ -38,7 +38,7 @@ export const UserReportApp = () => {
                 </div>
                 <button className='btn-main'>Registrar</button>
             </div>
-            <table className='table mt-5'>
+            <table className='table mt-5' style={{ fontSize: '0.9rem' }}>
                 <thead>
                     <tr>
                         <th>N°</th>

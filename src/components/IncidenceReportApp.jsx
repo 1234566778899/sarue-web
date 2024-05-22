@@ -8,7 +8,7 @@ export const IncidenceReportApp = () => {
     const status = ['En espera', 'En proceso', 'Terminado'];
     const [incidences, setIncidences] = useState(null)
     const [filter, setfilter] = useState([]);
-    const [dni, setdni] = useState('')
+    const [incidence, setincidence] = useState('')
     useEffect(() => {
         getIncidences()
     }, [])
@@ -23,7 +23,7 @@ export const IncidenceReportApp = () => {
             })
     }
     const findSuggestions = () => {
-        const val = incidences.filter(x => x.dni.includes(dni));
+        const val = incidences.filter(x => x.incidence.includes(incidence));
         setfilter(val);
     }
     return (
@@ -32,13 +32,20 @@ export const IncidenceReportApp = () => {
             <div className='search mt-5'>
                 <div className='find-dni'>
                     <div>
-                        <label>N° de Documento:</label>
-                        <input type="text" onChange={(e) => setdni(e.target.value)} />
+                        <label>Tipo de ambulancia:</label>
+                        <select
+                            onChange={(e) => setincidence(e.target.value)}
+                            style={{ padding: '5px', marginLeft: '10px', outline: 'none' }}>
+                            <option value=""></option>
+                            <option value="ambulancia">Ambulancia</option>
+                            <option value="policia">Policia</option>
+                            <option value="bomberos">Bomberos</option>
+                        </select>
                     </div>
                     <button onClick={() => findSuggestions()} className='btn-main ms-2'>Buscar</button>
                 </div>
             </div>
-            <table className='table mt-5 text-center'>
+            <table className='table mt-5 text-center' style={{ fontSize: '0.9rem' }}>
                 <thead>
                     <tr>
                         <th>N°</th>

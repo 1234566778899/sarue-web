@@ -51,7 +51,7 @@ export const IncidenceReportApp = () => {
             <div className='search mt-5'>
                 <div className='find-dni'>
                     <div>
-                        <label>Tipo de incidencia:</label>
+                        <label>Incidencia:</label>
                         <select
                             onChange={(e) => setincidence(e.target.value)}
                             style={{ padding: '5px', marginLeft: '10px', outline: 'none' }}>

@@ -1,57 +1,49 @@
+import axios from 'axios';
 import moment from 'moment';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { CONFIG } from '../config';
+import { ConfirmDeleteApp } from './ConfirmDeleteApp';
 
 export const SuggestionReportApp = () => {
     const status = ['En espera', 'En proceso', 'Terminado'];
     const colors = ['primary', 'secondary', 'success']
-    const [suggestions, setSuggestions] = useState([
-        {
-            _id: 1,
-            createdAt: new Date('2023-08-22'),
-            dni: '61126847',
-            name: 'Juan',
-            lname: 'Perez Tello',
-            type: 'Usabilidad',
-            description: 'El botón para guardar mis datos no está funcionando muy bien.',
-            status: 0,
-        },
-        {
-            _id: 2,
-            createdAt: new Date('2023-08-22'),
-            dni: '52213789',
-            name: 'Maria',
-            lname: 'Gomez Flores',
-            type: 'Accesibilidad',
-            description: 'La fuente de la página es muy pequeña y difícil de leer.',
-            status: 1,
-        },
-        {
-            _id: 3,
-            createdAt: new Date('2023-08-22'),
-            dni: '41326890',
-            name: 'Carlos',
-            lname: 'Martinez Lopez',
-            type: 'Rendimiento',
-            description: 'La aplicación se vuelve lenta cuando se cargan muchos datos.',
-            status: 2,
-        }
-    ]);
+    const [suggestions, setSuggestions] = useState(null);
     const [filter, setfilter] = useState(suggestions);
+    const [modalConfirm, setModalConfirm] = useState(true);
+    const [userId, setuserId] = useState('')
     const [type, settype] = useState('usabilidad')
+
+    const getSugg = () => {
+        axios.get(`${CONFIG.uri}/suggestions/retrieve`)
+            .then(res => {
+                setSuggestions(res.data);
+                setfilter(res.data);
+            }).catch(error => {
+                console.log(error);
+            })
+    }
+    useEffect(() => {
+        getSugg()
+    }, [])
+    const update = (id, status) => {
+        if (status >= 2) return;
+        axios.put(`${CONFIG.uri}/suggestions/update/${id}`, { status: status + 1 })
+            .then(res => {
+                getSugg();
+            }).catch(error => {
+                console.log(error);
+            })
+    }
     const findSuggestions = () => {
         console.log(suggestions)
         const val = suggestions.filter(x => x.type.toLowerCase().includes(type));
         setfilter(val);
     }
-    const updateState = (id, status) => {
-        if (status == 2) return;
-        const _incidences = filter.map(x =>
-            x._id == id ? { ...x, status: status + 1 } : x
-        );
-        setfilter(_incidences);
-    }
+
     return (
         <div>
+            <ConfirmDeleteApp
+                close={modalConfirm} userId={userId} setClose={setModalConfirm} update={getSugg} type={'suggestions'} />
             <h1>Reporte de Sugerencias</h1>
             <div className='search mt-5'>
                 <div className='find-dni'>
@@ -88,30 +80,36 @@ export const SuggestionReportApp = () => {
                 </thead>
                 <tbody>
                     {
-                        filter.map((x, index) => (
+                        filter && filter.length > 0 && filter.map((x, index) => (
                             <tr key={index}>
                                 <td>{index + 1}</td>
                                 <td>{moment(x.createdAt).format('DD/MM/YYYY')}</td>
                                 <td>{x.dni}</td>
                                 <td>{x.name}</td>
                                 <td>{x.lname}</td>
-                                <td>{x.type}</td>
+                                <td>{x.category}</td>
                                 <td>{x.description}</td>
                                 <td>
                                     <button
-                                        onClick={() => updateState(x._id, x.status)}
+                                        onClick={() => update(x._id, x.status)}
                                         className={`btn btn-${colors[x.status]}`} style={{ fontSize: '0.8rem' }}>
                                         {status[x.status]}
                                     </button>
                                 </td>
                                 <td >
-                                    <button style={{ fontSize: '0.8rem' }} className='btn btn-danger ms-1'><i className="fa-solid fa-trash"></i></button>
+                                    <button
+                                        onClick={() => { setModalConfirm(false); setuserId(x._id) }}
+                                        style={{ fontSize: '0.8rem' }} className='btn btn-danger ms-1'><i className="fa-solid fa-trash"></i></button>
                                 </td>
                             </tr>
                         ))
                     }
+
                 </tbody>
             </table>
+            {
+                filter && filter.length == 0 && <div className='text-center mt-3'>No se ha encontrado ninguna sugerencia</div>
+            }
         </div>
     )
 }

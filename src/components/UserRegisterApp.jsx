@@ -78,7 +78,7 @@ export const UserRegisterApp = () => {
                         </tbody>
                     </table>
                     <div className="text-end mt-3">
-                        <button className='btn-main' onClick={() => updateUser()}>Actualizar</button>
+                        <button className='btn-main' onClick={() => updateUser()}>Registrar</button>
                     </div>
                 </div>
             </div>

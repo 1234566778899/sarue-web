@@ -1,31 +1,34 @@
-import axios from 'axios'
-import React, { useState } from 'react'
-import { CONFIG } from '../config'
-import { showInfoToast } from '../utils/Components'
-import { useNavigate } from 'react-router-dom'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { CONFIG } from '../config';
+import { showInfoToast } from '../utils/Components';
 
-export const UserRegisterApp = () => {
+export const UserDetailsApp = () => {
+    const { id } = useParams();
+    const [user, setuser] = useState(null);
     const navigate = useNavigate();
-    const [user, setuser] = useState({
-        name: '',
-        lname: '',
-        dni: '',
-        cellphone: '',
-        password: '',
-        active: false
-    })
-    const updateUser = () => {
-        axios.post(`${CONFIG.uri}/users/register`, user)
+    useEffect(() => {
+        axios.get(`${CONFIG.uri}/users/retrieve/${id}`)
             .then(res => {
-                showInfoToast('Usuario registrado');
+                setuser(res.data);
+            }).catch(error => {
+                console.log(error);
+            })
+    }, [])
+
+    const updateUser = () => {
+        axios.post(`${CONFIG.uri}/users/update/${id}`, user)
+            .then(res => {
+                showInfoToast('Usuario actualizado');
                 navigate('/admin/users')
             }).catch(error => {
-                showInfoToast(error.response.data.error);
+                console.log(error);
             })
     }
-    return (
+    return user && (
         <div className='container'>
-            <h1 className='mt-3'>Registrar usuario</h1>
+            <h1 className='mt-3'>Detalles del usuario</h1>
             <div className="row">
                 <div className="col-md-6">
                     <table className='w-100 mt-4'>

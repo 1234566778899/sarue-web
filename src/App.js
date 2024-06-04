@@ -7,6 +7,7 @@ import { IncidenceReportApp } from './components/IncidenceReportApp';
 import { SuggestionReportApp } from './components/SuggestionReportApp';
 import { UserRegisterApp } from './components/UserRegisterApp';
 import { UserReportApp } from './components/UserReportApp';
+import { UserDetailsApp } from './components/UserDetailsApp';
 
 
 
@@ -21,8 +22,9 @@ function App() {
         <Route exact path='/admin/*' element={<HomeApp />} >
           <Route path='incidences' element={<IncidenceReportApp />} />
           <Route path='users' element={<UserReportApp />} />
-          <Route path='users-register' element={<UserRegisterApp />} />
+          <Route path='users/register' element={<UserRegisterApp />} />
           <Route path='suggestions' element={<SuggestionReportApp />} />
+          <Route path='users/:id' element={<UserDetailsApp />} />
         </Route>
       </Routes>
     </>

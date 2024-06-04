@@ -3,12 +3,16 @@ import axios from 'axios'
 import { CONFIG } from '../config';
 import { showInfoToast } from '../utils/Components';
 import moment from 'moment';
+import { ConfirmDeleteApp } from './ConfirmDeleteApp';
 
 export const IncidenceReportApp = () => {
     const status = ['En espera', 'En proceso', 'Terminado'];
+    const colors = ['primary', 'secondary', 'success'];
     const [incidences, setIncidences] = useState(null)
     const [filter, setfilter] = useState([]);
     const [incidence, setincidence] = useState('')
+    const [modalConfirm, setModalConfirm] = useState(true);
+    const [userId, setuserId] = useState('')
     useEffect(() => {
         getIncidences()
     }, [])
@@ -26,8 +30,23 @@ export const IncidenceReportApp = () => {
         const val = incidences.filter(x => x.incidence.includes(incidence));
         setfilter(val);
     }
+    const updateState = (id, status) => {
+        if (status == 2) return;
+        axios.put(`${CONFIG.uri}/alerts/update/${id}`, { status: status + 1 })
+            .then(res => {
+                showInfoToast('Estado actualizado');
+                const _incidences = filter.map(x =>
+                    x._id == id ? { ...x, status: status + 1 } : x
+                );
+                setfilter(_incidences)
+            }).catch(error => {
+                console.log(error);
+            })
+    }
     return (
         <div>
+            <ConfirmDeleteApp
+                close={modalConfirm} userId={userId} setClose={setModalConfirm} update={getIncidences} type={'alerts'} />
             <h1>Reporte de incidencias</h1>
             <div className='search mt-5'>
                 <div className='find-dni'>
@@ -68,12 +87,21 @@ export const IncidenceReportApp = () => {
                                 <td>{x.name}</td>
                                 <td>{x.lname}</td>
                                 <td>{x.incidence}</td>
-                                <td>{x.latitude},{x.longitude}</td>
-                                <td>{moment(x.createdAt).format('DD-MM-YYYY')}</td>
-                                <td>{status[x.status]}</td>
+                                <td>({x.latitude},{x.longitude})</td>
+                                <td>{moment(x.createdAt).format('DD/MM/YYYY')}</td>
+                                <td>
+                                    <button
+                                        onClick={() => updateState(x._id, x.status)}
+                                        className={`btn btn-${colors[x.status]}`} style={{ fontSize: '0.8rem' }}>
+                                        {status[x.status]}
+                                    </button>
+                                </td>
                                 <td className='action'>
-                                    <button><i className="fa-solid fa-pen-to-square"></i></button>
-                                    <button className='ms-1'><i className="fa-solid fa-trash"></i></button>
+                                    <button
+                                        onClick={() => { setModalConfirm(false); setuserId(x._id) }}
+                                        style={{ fontSize: '0.8rem' }} className='btn btn-danger'>
+                                        <i className="fa-solid fa-trash"></i>
+                                    </button>
                                 </td>
                             </tr>
                         ))

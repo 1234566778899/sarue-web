@@ -95,10 +95,6 @@ form button {
     padding: 20px;
 }
 
-.action button {
-    background: none;
-    border: none;
-}
 
 .search {
     display: flex;

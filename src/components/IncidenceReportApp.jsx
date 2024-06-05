@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { CONFIG } from '../config';
 import { showInfoToast } from '../utils/Components';
 import moment from 'moment';
@@ -8,41 +8,53 @@ import { ConfirmDeleteApp } from './ConfirmDeleteApp';
 export const IncidenceReportApp = () => {
     const status = ['En espera', 'En proceso', 'Terminado'];
     const colors = ['primary', 'secondary', 'success'];
-    const [incidences, setIncidences] = useState(null)
-    const [filter, setfilter] = useState([]);
-    const [incidence, setincidence] = useState('')
+    const [incidences, setIncidences] = useState(null);
+    const [filter, setFilter] = useState([]);
+    const [incidence, setIncidence] = useState('');
+    const [typeIncidence, setTypeIncidence] = useState('');
     const [modalConfirm, setModalConfirm] = useState(true);
-    const [userId, setuserId] = useState('')
+    const [userId, setUserId] = useState('');
+
     useEffect(() => {
-        getIncidences()
-    }, [])
+        getIncidences();
+    }, []);
+
     const getIncidences = () => {
         axios.get(`${CONFIG.uri}/alerts/retrieve`)
-            .then(x => {
-                setIncidences(x.data);
-                setfilter(x.data);
+            .then(response => {
+                setIncidences(response.data);
+                setFilter(response.data);
             })
             .catch(error => {
                 showInfoToast('Error en el servidor');
-            })
-    }
+            });
+    };
+
     const findSuggestions = () => {
-        const val = incidences.filter(x => x.incidence.includes(incidence));
-        setfilter(val);
-    }
+        const filtered = incidences.filter(x => x.incidence.includes(typeIncidence));
+        setFilter(filtered);
+    };
+
     const updateState = (id, status) => {
-        if (status == 2) return;
+        if (status === 2) return;
         axios.put(`${CONFIG.uri}/alerts/update/${id}`, { status: status + 1 })
-            .then(res => {
+            .then(() => {
                 showInfoToast('Estado actualizado');
-                const _incidences = filter.map(x =>
-                    x._id == id ? { ...x, status: status + 1 } : x
+                const updatedIncidences = filter.map(x =>
+                    x._id === id ? { ...x, status: status + 1 } : x
                 );
-                setfilter(_incidences)
+                setFilter(updatedIncidences);
             }).catch(error => {
                 console.log(error);
-            })
-    }
+            });
+    };
+
+    const types = {
+        'ambulancia': ['Emergencias médicas', 'Translado urgente a unidades especializadas', 'Atención en situaciones de emergencia en eventos públicos'],
+        'policia': ['Delito de robo', 'Incidente de armas', 'Disturbios y desordenes públicos', 'Control de tráfico/Seguridad en eventos'],
+        'bomberos': ['Incendios', 'Rescate y salvamento', 'Incidentes por electricidad']
+    };
+
     return (
         <div>
             <ConfirmDeleteApp
@@ -53,15 +65,34 @@ export const IncidenceReportApp = () => {
                     <div>
                         <label>Incidencia:</label>
                         <select
-                            onChange={(e) => setincidence(e.target.value)}
+                            onChange={(e) => {
+                                if (e.target.value == "") {
+                                    setIncidence(e.target.value);
+                                    setTypeIncidence("");
+                                } else {
+                                    const selectedIncidence = e.target.value;
+                                    setIncidence(selectedIncidence);
+                                    setTypeIncidence(types[selectedIncidence]);
+                                }
+                            }}
                             style={{ padding: '5px', marginLeft: '10px', outline: 'none' }}>
                             <option value=""></option>
                             <option value="ambulancia">Ambulancia</option>
                             <option value="policia">Policia</option>
                             <option value="bomberos">Bomberos</option>
                         </select>
+                        <select
+                            value={typeIncidence}
+                            onChange={(e) => setTypeIncidence(e.target.value)}
+                            style={{ padding: '5px', marginLeft: '10px', outline: 'none' }}>
+                            {
+                                incidence && types[incidence].map(x => (
+                                    <option key={x} value={x}>{x}</option>
+                                ))
+                            }
+                        </select>
                     </div>
-                    <button onClick={() => findSuggestions()} className='btn-main ms-2'>Buscar</button>
+                    <button onClick={findSuggestions} className='btn-main ms-2'>Buscar</button>
                 </div>
             </div>
             <table className='table mt-5 text-center' style={{ fontSize: '0.9rem' }}>
@@ -72,6 +103,7 @@ export const IncidenceReportApp = () => {
                         <th>Nombre</th>
                         <th>Apellido</th>
                         <th>Tipo de incidencia</th>
+                        <th>Incidencia</th>
                         <th>Ubicación</th>
                         <th>Fecha</th>
                         <th>Estado</th>
@@ -86,6 +118,7 @@ export const IncidenceReportApp = () => {
                                 <td>{x.dni}</td>
                                 <td>{x.name}</td>
                                 <td>{x.lname}</td>
+                                <td>{x.typeIncidence}</td>
                                 <td>{x.incidence}</td>
                                 <td>({x.latitude},{x.longitude})</td>
                                 <td>{moment(x.createdAt).format('DD/MM/YYYY')}</td>
@@ -98,7 +131,7 @@ export const IncidenceReportApp = () => {
                                 </td>
                                 <td className='action'>
                                     <button
-                                        onClick={() => { setModalConfirm(false); setuserId(x._id) }}
+                                        onClick={() => { setModalConfirm(false); setUserId(x._id); }}
                                         style={{ fontSize: '0.8rem' }} className='btn btn-danger'>
                                         <i className="fa-solid fa-trash"></i>
                                     </button>
@@ -109,5 +142,5 @@ export const IncidenceReportApp = () => {
                 </tbody>
             </table>
         </div>
-    )
-}
+    );
+};

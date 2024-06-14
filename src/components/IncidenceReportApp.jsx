@@ -4,6 +4,7 @@ import { CONFIG } from '../config';
 import { showInfoToast } from '../utils/Components';
 import moment from 'moment';
 import { ConfirmDeleteApp } from './ConfirmDeleteApp';
+import * as XLSX from 'xlsx';
 
 export const IncidenceReportApp = () => {
     const status = ['En espera', 'En proceso', 'Terminado'];
@@ -14,7 +15,11 @@ export const IncidenceReportApp = () => {
     const [typeIncidence, setTypeIncidence] = useState('');
     const [modalConfirm, setModalConfirm] = useState(true);
     const [userId, setUserId] = useState('');
-
+    const [ascendingDate, setAscendingDate] = useState(false);
+    const [dateFilter, setDateFilter] = useState('');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [statusCount, setStatusCount] = useState(0)
     useEffect(() => {
         getIncidences();
     }, []);
@@ -29,9 +34,33 @@ export const IncidenceReportApp = () => {
                 showInfoToast('Error en el servidor');
             });
     };
+    const exportToExcel = () => {
+        const dataToExport = filter.map(x => ({
+            DNI: x.dni,
+            Nombre: x.name,
+            Apellido: x.lname,
+            'Tipo de incidencia': x.typeIncidence,
+            Incidencia: x.incidence,
+            Ubicación: `(${x.latitude}, ${x.longitude})`,
+            Fecha: moment(x.createdAt).format('DD/MM/YYYY hh:mm:ss'),
+            Estado: status[x.status]
+        }));
 
-    const findSuggestions = () => {
-        const filtered = incidences.filter(x => x.incidence.includes(typeIncidence));
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Incidencias');
+
+        XLSX.writeFile(workbook, 'Reporte_de_Incidencias.xlsx');
+    };
+    const findIncidences = () => {
+        let filtered = [...incidences]
+        if (incidence) {
+            filtered = filtered.filter(x => x.typeIncidence.includes(incidence));
+        }
+
+        if (typeIncidence) {
+            filtered = filtered.filter(x => x.incidence.includes(typeIncidence));
+        }
         setFilter(filtered);
     };
 
@@ -49,6 +78,55 @@ export const IncidenceReportApp = () => {
             });
     };
 
+    const sortByDate = () => {
+        if (ascendingDate) {
+            const sorted = [...filter].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            setFilter(sorted);
+        } else {
+            const sorted = [...filter].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            setFilter(sorted);
+        }
+        setAscendingDate(prev => !prev);
+    };
+
+    const applyDateFilter = () => {
+        let filtered = [...incidences];
+        const today = moment().startOf('day');
+        const oneWeekAgo = moment().subtract(7, 'days').startOf('day');
+        const oneMonthAgo = moment().subtract(1, 'month').startOf('day');
+
+        switch (dateFilter) {
+            case 'today':
+                filtered = filtered.filter(x => moment(x.createdAt).isSame(today, 'day'));
+                break;
+            case 'week':
+                filtered = filtered.filter(x => moment(x.createdAt).isAfter(oneWeekAgo));
+                break;
+            case 'month':
+                filtered = filtered.filter(x => moment(x.createdAt).isAfter(oneMonthAgo));
+                break;
+            case 'range':
+                if (startDate && endDate) {
+                    const start = moment(startDate).startOf('day');
+                    const end = moment(endDate).endOf('day');
+                    filtered = filtered.filter(x => moment(x.createdAt).isBetween(start, end));
+                }
+                break;
+            default:
+                filtered = incidences;
+        }
+
+        setFilter(filtered);
+    };
+    const filterStatus = () => {
+        let filtered = incidences.filter(x => x.status == statusCount);
+        if (statusCount <= 2) {
+            setFilter(filtered);
+        } else {
+            setFilter(incidences);
+        }
+        setStatusCount(prev => prev + 1 > 3 ? 0 : prev + 1);
+    }
     const types = {
         'ambulancia': ['Emergencias médicas', 'Translado urgente a unidades especializadas', 'Atención en situaciones de emergencia en eventos públicos'],
         'policia': ['Delito de robo', 'Incidente de armas', 'Disturbios y desordenes públicos', 'Control de tráfico/Seguridad en eventos'],
@@ -66,17 +144,11 @@ export const IncidenceReportApp = () => {
                         <label>Incidencia:</label>
                         <select
                             onChange={(e) => {
-                                if (e.target.value == "") {
-                                    setIncidence(e.target.value);
-                                    setTypeIncidence("");
-                                } else {
-                                    const selectedIncidence = e.target.value;
-                                    setIncidence(selectedIncidence);
-                                    setTypeIncidence(types[selectedIncidence]);
-                                }
+                                setIncidence(e.target.value);
+                                setTypeIncidence('')
                             }}
                             style={{ padding: '5px', marginLeft: '10px', outline: 'none' }}>
-                            <option value=""></option>
+                            <option value="">Todos</option>
                             <option value="ambulancia">Ambulancia</option>
                             <option value="policia">Policia</option>
                             <option value="bomberos">Bomberos</option>
@@ -85,6 +157,7 @@ export const IncidenceReportApp = () => {
                             value={typeIncidence}
                             onChange={(e) => setTypeIncidence(e.target.value)}
                             style={{ padding: '5px', marginLeft: '10px', outline: 'none' }}>
+                            <option value=''>Todos</option>
                             {
                                 incidence && types[incidence].map(x => (
                                     <option key={x} value={x}>{x}</option>
@@ -92,8 +165,40 @@ export const IncidenceReportApp = () => {
                             }
                         </select>
                     </div>
-                    <button onClick={findSuggestions} className='btn-main ms-2'>Buscar</button>
+                    <button onClick={findIncidences} className='btn-main ms-2'>Buscar</button>
                 </div>
+                <div className='mt-3'>
+                    <label>Filtrar por fecha:</label>
+                    <select
+                        onChange={(e) => setDateFilter(e.target.value)}
+                        style={{ padding: '5px', marginLeft: '10px', outline: 'none' }}>
+                        <option value=""></option>
+                        <option value="today">Hoy</option>
+                        <option value="week">Hace una semana</option>
+                        <option value="month">Hace un mes</option>
+                        <option value="range">Rango</option>
+                    </select>
+                    {
+                        dateFilter === 'range' && (
+                            <>
+                                <input
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    style={{ padding: '5px', marginLeft: '10px', outline: 'none' }} />
+                                <input
+                                    type="date"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                    style={{ padding: '5px', marginLeft: '10px', outline: 'none' }} />
+                            </>
+                        )
+                    }
+                    <button onClick={applyDateFilter} className='btn-main ms-2'>Aplicar</button>
+                </div>
+            </div>
+            <div className="text-end mt-3">
+                <button onClick={exportToExcel} className='btn-main mt-3'>Exportar a Excel</button>
             </div>
             <table className='table mt-5 text-center' style={{ fontSize: '0.9rem' }}>
                 <thead>
@@ -105,8 +210,15 @@ export const IncidenceReportApp = () => {
                         <th>Tipo de incidencia</th>
                         <th>Incidencia</th>
                         <th>Ubicación</th>
-                        <th>Fecha</th>
-                        <th>Estado</th>
+                        <th
+                            onClick={() => sortByDate()}
+                            className='head-date'>Fecha<i className="fa-solid fa-sort ms-2"></i></th>
+                        <th
+                            onClick={() => filterStatus()}
+                            className='head-status'>
+
+                            Estado <i className="ms-2 fa-solid fa-repeat"></i>
+                        </th>
                         <th>Acción</th>
                     </tr>
                 </thead>
@@ -121,7 +233,7 @@ export const IncidenceReportApp = () => {
                                 <td>{x.typeIncidence}</td>
                                 <td>{x.incidence}</td>
                                 <td>({x.latitude},{x.longitude})</td>
-                                <td>{moment(x.createdAt).format('DD/MM/YYYY')}</td>
+                                <td>{moment(x.createdAt).format('DD/MM/YYYY hh:mm:ss')}</td>
                                 <td>
                                     <button
                                         onClick={() => updateState(x._id, x.status)}
@@ -130,11 +242,15 @@ export const IncidenceReportApp = () => {
                                     </button>
                                 </td>
                                 <td className='action'>
-                                    <button
-                                        onClick={() => { setModalConfirm(false); setUserId(x._id); }}
-                                        style={{ fontSize: '0.8rem' }} className='btn btn-danger'>
-                                        <i className="fa-solid fa-trash"></i>
-                                    </button>
+                                    {
+                                        x.status === 0 && (
+                                            <button
+                                                onClick={() => { setModalConfirm(false); setUserId(x._id); }}
+                                                style={{ fontSize: '0.8rem' }} className='btn btn-danger'>
+                                                <i className="fa-solid fa-trash"></i>
+                                            </button>
+                                        )
+                                    }
                                 </td>
                             </tr>
                         ))

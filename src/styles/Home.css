@@ -95,6 +95,21 @@ form button {
     padding: 20px;
 }
 
+.head-date {
+    cursor: pointer;
+}
+
+.head-date:hover {
+    background-color: #f9f9f9;
+}
+
+.head-status {
+    cursor: pointer;
+}
+
+.head-status:hover {
+    background-color: #f3f3f3;
+}
 
 .search {
     display: flex;

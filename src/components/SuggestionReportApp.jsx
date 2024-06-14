@@ -12,7 +12,7 @@ export const SuggestionReportApp = () => {
     const [modalConfirm, setModalConfirm] = useState(true);
     const [userId, setuserId] = useState('')
     const [type, settype] = useState('usabilidad')
-
+    const [ascendingDate, setAscendingDate] = useState(false)
     const getSugg = () => {
         axios.get(`${CONFIG.uri}/suggestions/retrieve`)
             .then(res => {
@@ -35,11 +35,19 @@ export const SuggestionReportApp = () => {
             })
     }
     const findSuggestions = () => {
-        console.log(suggestions)
         const val = suggestions.filter(x => x.type.toLowerCase().includes(type));
         setfilter(val);
     }
-
+    const sortByDate = () => {
+        if (ascendingDate) {
+            const sorted = [...filter].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+            setfilter(sorted);
+        } else {
+            const sorted = [...filter].sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
+            setfilter(sorted);
+        }
+        setAscendingDate(prev => !prev)
+    };
     return (
         <div>
             <ConfirmDeleteApp
@@ -68,7 +76,10 @@ export const SuggestionReportApp = () => {
                 <thead>
                     <tr>
                         <th>N°</th>
-                        <th>Fecha</th>
+                        <th
+                            onClick={() => sortByDate()}
+                            className='head-date'
+                        >Fecha<i className="fa-solid fa-sort ms-2"></i></th>
                         <th>DNI</th>
                         <th>Nombre</th>
                         <th>Apellido</th>
@@ -83,7 +94,7 @@ export const SuggestionReportApp = () => {
                         filter && filter.length > 0 && filter.map((x, index) => (
                             <tr key={index}>
                                 <td>{index + 1}</td>
-                                <td>{moment(x.createdAt).format('DD/MM/YYYY')}</td>
+                                <td>{moment(x.updatedAt).format('DD/MM/YYYY hh:mm:ss')}</td>
                                 <td>{x.dni}</td>
                                 <td>{x.name}</td>
                                 <td>{x.lname}</td>

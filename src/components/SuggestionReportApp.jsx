@@ -3,6 +3,7 @@ import moment from 'moment';
 import React, { useEffect, useState } from 'react'
 import { CONFIG } from '../config';
 import { ConfirmDeleteApp } from './ConfirmDeleteApp';
+import * as XLSX from 'xlsx';
 
 export const SuggestionReportApp = () => {
     const status = ['En espera', 'En proceso', 'Terminado'];
@@ -48,6 +49,23 @@ export const SuggestionReportApp = () => {
         }
         setAscendingDate(prev => !prev)
     };
+    const exportToExcel = () => {
+        const dataToExport = filter.map(x => ({
+            DNI: x.dni,
+            Nombre: x.name,
+            Apellido: x.lname,
+            'Tipo': x.category,
+            Descripcion: x.description,
+            Fecha: moment(x.createdAt).format('DD/MM/YYYY hh:mm:ss'),
+            Estado: status[x.status]
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Incidencias');
+
+        XLSX.writeFile(workbook, 'Reporte_de_Incidencias.xlsx');
+    };
     return (
         <div>
             <ConfirmDeleteApp
@@ -71,6 +89,13 @@ export const SuggestionReportApp = () => {
                     </div>
                     <button onClick={() => findSuggestions()} className='btn btn-success ms-2'>Buscar</button>
                 </div>
+            </div>
+            <div className="text-end">
+                <button
+                    onClick={() => exportToExcel()}
+                    className='btn btn-success'>Exportar
+                    <i className="ms-2 fa-solid fa-file-export"></i>
+                </button>
             </div>
             <table className='table mt-5' style={{ fontSize: '0.9rem' }}>
                 <thead>
@@ -108,9 +133,13 @@ export const SuggestionReportApp = () => {
                                     </button>
                                 </td>
                                 <td >
-                                    <button
-                                        onClick={() => { setModalConfirm(false); setuserId(x._id) }}
-                                        style={{ fontSize: '0.8rem' }} className='btn btn-danger ms-1'><i className="fa-solid fa-trash"></i></button>
+                                    {
+                                        x.status == '0' && (
+                                            <button
+                                                onClick={() => { setModalConfirm(false); setuserId(x._id) }}
+                                                style={{ fontSize: '0.8rem' }} className='btn btn-danger ms-1'><i className="fa-solid fa-trash"></i></button>
+                                        )
+                                    }
                                 </td>
                             </tr>
                         ))

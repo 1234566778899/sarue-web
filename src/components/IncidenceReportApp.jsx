@@ -20,6 +20,7 @@ export const IncidenceReportApp = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [statusCount, setStatusCount] = useState(0)
+    const [paginate, setPaginate] = useState(1)
     useEffect(() => {
         getIncidences();
     }, []);
@@ -224,7 +225,7 @@ export const IncidenceReportApp = () => {
                 </thead>
                 <tbody>
                     {
-                        filter && filter.map((x, index) => (
+                        filter && filter.slice((paginate - 1) * 10, paginate * 10).map((x, index) => (
                             <tr key={index}>
                                 <td>{index + 1}</td>
                                 <td>{x.dni}</td>
@@ -257,6 +258,29 @@ export const IncidenceReportApp = () => {
                     }
                 </tbody>
             </table>
+            <div className="d-flex justify-content-center">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                        <li class="page-item" onClick={() => setPaginate(prev => prev - 1 >= 1 ? prev - 1 : prev)}>
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {
+                            Array.from({ length: Math.ceil(filter.length / 10) }, (_, idx) => (
+                                <li
+                                    onClick={() => setPaginate(idx + 1)}
+                                    class={`page-item ${paginate == idx + 1 ? 'active' : ''}`}><a class="page-link" href="#">{idx + 1}</a></li>
+                            ))
+                        }
+                        <li class="page-item" onClick={() => setPaginate(prev => prev + 1 <= Math.ceil(filter.length / 10) ? prev + 1 : prev)}>
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
         </div>
     );
 };

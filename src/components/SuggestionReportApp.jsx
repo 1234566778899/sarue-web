@@ -36,7 +36,7 @@ export const SuggestionReportApp = () => {
             })
     }
     const findSuggestions = () => {
-        const val = suggestions.filter(x => x.type.toLowerCase().includes(type));
+        const val = suggestions.filter(x => x.category.toLowerCase().includes(type));
         setfilter(val);
     }
     const sortByDate = () => {
@@ -83,7 +83,6 @@ export const SuggestionReportApp = () => {
                             <option value="accesibilidad">Accesibilidad</option>
                             <option value="rendimiento">Rendimiento</option>
                             <option value="funcionalidad">Funcionalidad</option>
-                            <option value="interfaz">Interfaz</option>
 
                         </select>
                     </div>

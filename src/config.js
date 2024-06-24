@@ -1,4 +1,4 @@
 export const CONFIG = {
-    uri: 'https://sarue.azurewebsites.net'
+    uri: 'http://35.173.219.41:4000'
     //uri: 'http://localhost:4000'
 }

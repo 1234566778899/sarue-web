@@ -99,6 +99,10 @@ form button {
     cursor: pointer;
 }
 
+.status-user {
+    cursor: pointer;
+}
+
 .head-date:hover {
     background-color: #f9f9f9;
 }

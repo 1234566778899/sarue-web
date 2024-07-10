@@ -8,6 +8,7 @@ import { SuggestionReportApp } from './components/SuggestionReportApp';
 import { UserRegisterApp } from './components/UserRegisterApp';
 import { UserReportApp } from './components/UserReportApp';
 import { UserDetailsApp } from './components/UserDetailsApp';
+import { MapViewApp } from './components/MapViewApp';
 
 
 
@@ -25,6 +26,7 @@ function App() {
           <Route path='users/register' element={<UserRegisterApp />} />
           <Route path='suggestions' element={<SuggestionReportApp />} />
           <Route path='users/:id' element={<UserDetailsApp />} />
+          <Route path='map/:latitude/:longitude' element={<MapViewApp />} />
         </Route>
       </Routes>
     </>

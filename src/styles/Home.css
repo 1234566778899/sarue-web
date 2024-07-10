@@ -139,3 +139,11 @@ form button {
     color: white;
     border-radius: 3px;
 }
+
+.coords {
+    cursor: pointer;
+}
+
+.coords:hover {
+    text-decoration: underline;
+}

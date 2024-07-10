@@ -5,6 +5,7 @@ import { showInfoToast } from '../utils/Components';
 import moment from 'moment';
 import { ConfirmDeleteApp } from './ConfirmDeleteApp';
 import * as XLSX from 'xlsx';
+import { useNavigate } from 'react-router-dom';
 
 export const IncidenceReportApp = () => {
     const status = ['En espera', 'En proceso', 'Terminado'];
@@ -21,6 +22,7 @@ export const IncidenceReportApp = () => {
     const [endDate, setEndDate] = useState('');
     const [statusCount, setStatusCount] = useState(0)
     const [paginate, setPaginate] = useState(1)
+    const navigate = useNavigate();
     useEffect(() => {
         getIncidences();
     }, []);
@@ -233,7 +235,9 @@ export const IncidenceReportApp = () => {
                                 <td>{x.lname}</td>
                                 <td>{x.typeIncidence}</td>
                                 <td>{x.incidence}</td>
-                                <td>({x.latitude},{x.longitude})</td>
+                                <td
+                                    className='coords'
+                                    onClick={() => navigate(`/admin/map/${x.latitude}/${x.longitude}`)}>({x.latitude},{x.longitude})</td>
                                 <td>{moment(x.createdAt).format('DD/MM/YYYY hh:mm:ss')}</td>
                                 <td>
                                     <button
@@ -260,9 +264,9 @@ export const IncidenceReportApp = () => {
             </table>
             <div className="d-flex justify-content-center">
                 <nav aria-label="Page navigation example">
-                    <ul class="pagination">
-                        <li class="page-item" onClick={() => setPaginate(prev => prev - 1 >= 1 ? prev - 1 : prev)}>
-                            <a class="page-link" href="#" aria-label="Previous">
+                    <ul className="pagination">
+                        <li className="page-item" onClick={() => setPaginate(prev => prev - 1 >= 1 ? prev - 1 : prev)}>
+                            <a className="page-link" href="#" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
@@ -270,11 +274,11 @@ export const IncidenceReportApp = () => {
                             Array.from({ length: Math.ceil(filter.length / 10) }, (_, idx) => (
                                 <li
                                     onClick={() => setPaginate(idx + 1)}
-                                    class={`page-item ${paginate == idx + 1 ? 'active' : ''}`}><a class="page-link" href="#">{idx + 1}</a></li>
+                                    className={`page-item ${paginate == idx + 1 ? 'active' : ''}`}><a className="page-link" href="#">{idx + 1}</a></li>
                             ))
                         }
-                        <li class="page-item" onClick={() => setPaginate(prev => prev + 1 <= Math.ceil(filter.length / 10) ? prev + 1 : prev)}>
-                            <a class="page-link" href="#" aria-label="Next">
+                        <li className="page-item" onClick={() => setPaginate(prev => prev + 1 <= Math.ceil(filter.length / 10) ? prev + 1 : prev)}>
+                            <a className="page-link" href="#" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>

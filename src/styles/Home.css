@@ -147,3 +147,11 @@ form button {
 .coords:hover {
     text-decoration: underline;
 }
+
+.btn-out {
+    border: none;
+    background: none;
+    padding: 3px 15px;
+    background-color: white;
+    border-radius: 3px;
+}

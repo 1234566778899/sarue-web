@@ -3,7 +3,6 @@ import { Outlet, useNavigate } from 'react-router-dom'
 
 export const HomeApp = () => {
     const navigate = useNavigate();
-
     const [activeOption, seTactiveOption] = useState('incidences')
     const [token, settoken] = useState('')
     useEffect(() => {
@@ -29,6 +28,9 @@ export const HomeApp = () => {
                     <p
                         className={`${activeOption == 'users' ? 'option-active' : ''}`}
                         onClick={() => { navigate('/admin/users'); seTactiveOption('users') }}>Usuarios</p>
+                    <div>
+                        <button className='btn-out' onClick={() => navigate('/login')}>Salir</button>
+                    </div>
                 </div>
             </div>
             <div className='body-home'>
